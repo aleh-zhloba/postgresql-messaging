@@ -2,7 +2,7 @@
 [![Kotlin](https://img.shields.io/badge/kotlin-1.9.10-blue.svg?logo=kotlin)](http://kotlinlang.org) 
 [![Apache License V.2](https://img.shields.io/badge/license-Apache%20V.2-blue.svg)](https://github.com/oshai/kotlin-logging/blob/master/LICENSE)
 
-Painless event bus implementation for PostgreSQL-backed applications. Uses PostgreSQL `LISTEN / NOTIFY` built-in asynchronous notification system.
+Convenient event bus implementation for PostgreSQL-backed distributed applications. Uses PostgreSQL `LISTEN / NOTIFY` built-in asynchronous notification system.
 
 Supports reactive streams and [Spring Messaging](https://docs.spring.io/spring-integration/docs/current/reference/html/core.html#spring-integration-core-messaging) abstractions.
 
