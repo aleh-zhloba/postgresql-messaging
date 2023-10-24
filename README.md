@@ -2,7 +2,7 @@
 [![Kotlin](https://img.shields.io/badge/kotlin-1.9.10-blue.svg?logo=kotlin)](http://kotlinlang.org) 
 [![Apache License V.2](https://img.shields.io/badge/license-Apache%20V.2-blue.svg)](https://github.com/oshai/kotlin-logging/blob/master/LICENSE)
 
-Convenient and efficient event bus for PostgreSQL-backed distributed JVM applications. 
+Convenient event bus for PostgreSQL-backed distributed JVM applications. 
 
 Kotlin wrapper over PostgreSQL `LISTEN / NOTIFY` built-in asynchronous notification system.
 

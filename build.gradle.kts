@@ -88,7 +88,7 @@ publishing {
     repositories {
         maven {
             name = "deploy"
-            url = uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+            url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
             credentials {
                 username = System.getenv("OSSRH_USERNAME") ?: ""
                 password = System.getenv("OSSRH_PASSWORD") ?: ""
@@ -100,9 +100,9 @@ publishing {
         create<MavenPublication>("mavenJava") {
             pom {
                 from(components["java"])
-                name = "spring-messaging-postgresql"
-                description = "PostgreSQL listen/notify messaging Spring integration"
-                url = "https://github.com/aleh-zhloba/spring-messaging-postgresql"
+                name = "messaging-postgresql"
+                description = "Convenient event bus for PostgreSQL-backed distributed JVM applications"
+                url = "https://github.com/aleh-zhloba/postgresql-messaging"
                 licenses {
                     license {
                         name = "The Apache License, Version 2.0"
@@ -117,9 +117,9 @@ publishing {
                     }
                 }
                 scm {
-                    connection = "scm:git:git://github.com/aleh-zhloba/spring-messaging-postgresql.git"
-                    developerConnection = "scm:git:ssh://github.com/aleh-zhloba/spring-messaging-postgresql.git"
-                    url = "https://github.com/aleh-zhloba/spring-messaging-postgresql"
+                    connection = "scm:git:git://github.com/aleh-zhloba/postgresql-messaging.git"
+                    developerConnection = "scm:git:ssh://github.com/aleh-zhloba/postgresql-messaging.git"
+                    url = "https://github.com/aleh-zhloba/postgresql-messaging"
                 }
             }
         }

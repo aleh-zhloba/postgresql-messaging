@@ -1,1 +1,1 @@
-rootProject.name = "spring-messaging-postgresql"
+rootProject.name = "postgresql-messaging"
