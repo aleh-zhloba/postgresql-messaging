@@ -3,13 +3,13 @@ package com.github.zhloba.spring.messaging.postgresql.config
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.github.zhloba.spring.messaging.postgresql.converter.JacksonNotificationMessageConverter
 import com.github.zhloba.spring.messaging.postgresql.converter.NotificationMessageConverter
+import com.github.zhloba.spring.messaging.postgresql.core.PostgresMessageSendingTemplate
+import com.github.zhloba.spring.messaging.postgresql.core.PostgresMethodMessageHandler
+import com.github.zhloba.spring.messaging.postgresql.eventbus.PostgresNotificationEventBus
 import com.github.zhloba.spring.messaging.postgresql.eventbus.R2DBCPostgresNotificationEventBus
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.Wrapped
-import com.github.zhloba.spring.messaging.postgresql.core.PostgresMessageSendingTemplate
-import com.github.zhloba.spring.messaging.postgresql.core.PostgresMethodMessageHandler
-import com.github.zhloba.spring.messaging.postgresql.eventbus.PostgresNotificationEventBus
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -18,7 +18,6 @@ import org.springframework.messaging.converter.MessageConverter
 
 @Configuration
 class PostgresMessagingAutoConfiguration {
-
     @Bean
     @ConditionalOnMissingBean
     fun messageConverter(): MessageConverter {
@@ -30,10 +29,11 @@ class PostgresMessagingAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     fun messageContainerConverter(messageConverter: MessageConverter): NotificationMessageConverter {
-        val objectMapper = when (messageConverter) {
-            is MappingJackson2MessageConverter -> messageConverter.objectMapper
-            else -> ObjectMapper()
-        }
+        val objectMapper =
+            when (messageConverter) {
+                is MappingJackson2MessageConverter -> messageConverter.objectMapper
+                else -> ObjectMapper()
+            }
 
         return JacksonNotificationMessageConverter(objectMapper)
     }
@@ -49,7 +49,7 @@ class PostgresMessagingAutoConfiguration {
     fun postgresMessageSendingTemplate(
         postgresEventBus: R2DBCPostgresNotificationEventBus,
         messageConverter: MessageConverter,
-        messageContainerConverter: NotificationMessageConverter
+        messageContainerConverter: NotificationMessageConverter,
     ): PostgresMessageSendingTemplate {
         return PostgresMessageSendingTemplate(postgresEventBus, messageContainerConverter).apply {
             this.messageConverter = messageConverter
@@ -61,9 +61,8 @@ class PostgresMessagingAutoConfiguration {
     fun postgresMethodMessageHandler(
         postgresEventBus: PostgresNotificationEventBus,
         messageConverter: MessageConverter,
-        messageContainerConverter: NotificationMessageConverter
-    ): PostgresMethodMessageHandler =
-        PostgresMethodMessageHandler(postgresEventBus, messageConverter, messageContainerConverter)
+        messageContainerConverter: NotificationMessageConverter,
+    ): PostgresMethodMessageHandler = PostgresMethodMessageHandler(postgresEventBus, messageConverter, messageContainerConverter)
 
     private fun ConnectionFactory.unwrapPostgresConnectionFactory(): PostgresqlConnectionFactory =
         when (this) {

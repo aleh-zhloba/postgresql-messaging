@@ -9,27 +9,43 @@ import org.springframework.messaging.core.MessagePostProcessor
 
 class PostgresMessageSendingTemplate(
     private val eventBus: R2DBCPostgresNotificationEventBus,
-    private val notificationMessageConverter: NotificationMessageConverter
+    private val notificationMessageConverter: NotificationMessageConverter,
 ) : AbstractMessageSendingTemplate<PostgresMessageChannel>(),
     DestinationResolvingMessageSendingOperations<PostgresMessageChannel> {
-
-    override fun doSend(destination: PostgresMessageChannel, message: Message<*>) {
+    override fun doSend(
+        destination: PostgresMessageChannel,
+        message: Message<*>,
+    ) {
         destination.send(message)
     }
 
-    override fun send(destinationName: String, message: Message<*>) {
+    override fun send(
+        destinationName: String,
+        message: Message<*>,
+    ) {
         send(resolveMessageChannel(destinationName), message)
     }
 
-    override fun <T : Any> convertAndSend(destinationName: String, payload: T) {
+    override fun <T : Any> convertAndSend(
+        destinationName: String,
+        payload: T,
+    ) {
         convertAndSend(destinationName, payload, null, null)
     }
 
-    override fun <T : Any> convertAndSend(destinationName: String, payload: T, headers: MutableMap<String, Any>?) {
+    override fun <T : Any> convertAndSend(
+        destinationName: String,
+        payload: T,
+        headers: MutableMap<String, Any>?,
+    ) {
         convertAndSend(destinationName, payload, headers, null)
     }
 
-    override fun <T : Any> convertAndSend(destinationName: String, payload: T, postProcessor: MessagePostProcessor?) {
+    override fun <T : Any> convertAndSend(
+        destinationName: String,
+        payload: T,
+        postProcessor: MessagePostProcessor?,
+    ) {
         convertAndSend(destinationName, payload, null, postProcessor)
     }
 
@@ -37,7 +53,7 @@ class PostgresMessageSendingTemplate(
         destinationName: String,
         payload: T,
         headers: MutableMap<String, Any>?,
-        postProcessor: MessagePostProcessor?
+        postProcessor: MessagePostProcessor?,
     ) {
         val message = doConvert(payload, headers, postProcessor)
         send(destinationName, message)
@@ -46,7 +62,4 @@ class PostgresMessageSendingTemplate(
     private fun resolveMessageChannel(destination: String): PostgresMessageChannel {
         return PostgresMessageChannel(eventBus, notificationMessageConverter, destination)
     }
-
 }
-
-

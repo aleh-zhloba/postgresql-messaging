@@ -13,18 +13,19 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import reactor.test.StepVerifier
 import java.time.Duration
 
-
 @SpringBootTest(classes = [R2dbcAutoConfiguration::class, PostgresMessagingAutoConfiguration::class])
 @Testcontainers
-class R2DBCPostgresNotificationEventBusTest(@Autowired private val eventBus: PostgresNotificationEventBus) {
-
+class R2DBCPostgresNotificationEventBusTest(
+    @Autowired private val eventBus: PostgresNotificationEventBus,
+) {
     companion object {
         @Container
         @ServiceConnection
-        val postgresContainer: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16.0")
-            .withDatabaseName("test")
-            .withUsername("postgres")
-            .withPassword("postgres")
+        val postgresContainer: PostgreSQLContainer<*> =
+            PostgreSQLContainer("postgres:16.0")
+                .withDatabaseName("test")
+                .withUsername("postgres")
+                .withPassword("postgres")
     }
 
     @Test
@@ -32,7 +33,7 @@ class R2DBCPostgresNotificationEventBusTest(@Autowired private val eventBus: Pos
         val channel = "test_channel1"
         val payload = "test_notification1"
 
-        assertDoesNotThrow {  eventBus.notify(channel, payload) }
+        assertDoesNotThrow { eventBus.notify(channel, payload) }
     }
 
     @Test
@@ -40,10 +41,11 @@ class R2DBCPostgresNotificationEventBusTest(@Autowired private val eventBus: Pos
         val channel = "test_channel1"
         val payload = "test_notification1"
 
-        val verifier = StepVerifier.create(eventBus.listen(channel))
-            .assertNext { assert(it.channel == channel && it.payload == payload) }
-            .thenCancel()
-            .verifyLater()
+        val verifier =
+            StepVerifier.create(eventBus.listen(channel))
+                .assertNext { assert(it.channel == channel && it.payload == payload) }
+                .thenCancel()
+                .verifyLater()
 
         eventBus.notify(channel, payload)
 
@@ -55,12 +57,13 @@ class R2DBCPostgresNotificationEventBusTest(@Autowired private val eventBus: Pos
         val channel = "test_channel1"
         val payload = "test_notification1"
 
-        val verifiers = (1..32).map {
-            StepVerifier.create(eventBus.listen(channel))
-                .assertNext { assert(it.channel == channel && it.payload == payload) }
-                .thenCancel()
-                .verifyLater()
-        }
+        val verifiers =
+            (1..32).map {
+                StepVerifier.create(eventBus.listen(channel))
+                    .assertNext { assert(it.channel == channel && it.payload == payload) }
+                    .thenCancel()
+                    .verifyLater()
+            }
 
         eventBus.notify(channel, payload)
 
@@ -72,12 +75,13 @@ class R2DBCPostgresNotificationEventBusTest(@Autowired private val eventBus: Pos
         val channel = "test_channel2"
         val messageRange = 1..1024
 
-        val verifiers = (1..8).map {
-            StepVerifier.create(eventBus.listen(channel).map { it.payload })
-                .expectNext(*messageRange.map { it.toString() }.toTypedArray())
-                .thenCancel()
-                .verifyLater()
-        }
+        val verifiers =
+            (1..8).map {
+                StepVerifier.create(eventBus.listen(channel).map { it.payload })
+                    .expectNext(*messageRange.map { it.toString() }.toTypedArray())
+                    .thenCancel()
+                    .verifyLater()
+            }
 
         for (i in messageRange) {
             eventBus.notify(channel, "$i")
@@ -85,5 +89,4 @@ class R2DBCPostgresNotificationEventBusTest(@Autowired private val eventBus: Pos
 
         verifiers.forEach { it.verify(Duration.ofMillis(500)) }
     }
-
 }

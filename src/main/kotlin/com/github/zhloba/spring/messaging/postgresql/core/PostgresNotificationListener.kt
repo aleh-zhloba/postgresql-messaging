@@ -12,6 +12,5 @@ annotation class PostgresNotificationListener(
      * @return list of channels
      */
     vararg val value: String = [],
-
-    val skipLocal: Boolean = false
+    val skipLocal: Boolean = false,
 )

@@ -7,11 +7,9 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import org.springframework.messaging.Message
-import org.springframework.messaging.support.MessageBuilder
 import java.lang.String.valueOf
 
 class KotlinXNotificationMessageConverter : BaseNotificationMessageConverter() {
-
     override fun fromNotification(notificationEvent: NotificationEvent): Message<String> =
         notificationEvent.payload?.let { payload ->
             val container = Json.decodeFromString<MessageDataContainer>(payload)
@@ -23,14 +21,14 @@ class KotlinXNotificationMessageConverter : BaseNotificationMessageConverter() {
             NotificationMessageContainer.serializer(),
             NotificationMessageContainer(
                 payload = message.payload?.let { valueOf(it) },
-                headers = normalizeHeaders(message.headers)
-            )
+                headers = normalizeHeaders(message.headers),
+            ),
         )
     }
 
     @Serializable
     data class NotificationMessageContainer(
         @SerialName("p") val payload: String?,
-        @SerialName("h") val headers: Map<String, @Contextual Any?>
+        @SerialName("h") val headers: Map<String, @Contextual Any?>,
     )
 }

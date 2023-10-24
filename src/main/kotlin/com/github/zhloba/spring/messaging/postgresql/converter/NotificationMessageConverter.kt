@@ -7,19 +7,21 @@ import org.springframework.messaging.MessageHeaders
 import org.springframework.messaging.support.MessageBuilder
 
 interface NotificationMessageConverter {
-
     fun fromNotification(notificationEvent: NotificationEvent): Message<String>
 
     fun toNotificationPayload(message: Message<*>): String
-
 }
 
 abstract class BaseNotificationMessageConverter : NotificationMessageConverter {
-
-    protected fun buildMessage(notificationEvent: NotificationEvent, messagePayload: String?, messageHeaders: Map<String, Any?>): Message<String> {
-        val notificationMessageHeaders = HashMap<String, Any?>(messageHeaders).apply {
-            putAll(getCommonNotificationHeaders(notificationEvent))
-        }
+    protected fun buildMessage(
+        notificationEvent: NotificationEvent,
+        messagePayload: String?,
+        messageHeaders: Map<String, Any?>,
+    ): Message<String> {
+        val notificationMessageHeaders =
+            HashMap<String, Any?>(messageHeaders).apply {
+                putAll(getCommonNotificationHeaders(notificationEvent))
+            }
 
         return MessageBuilder.createMessage(messagePayload, MessageHeaders(notificationMessageHeaders))
     }
@@ -32,10 +34,10 @@ abstract class BaseNotificationMessageConverter : NotificationMessageConverter {
             when (value) {
                 null,
                 is Boolean,
-                is Number -> value
+                is Number,
+                -> value
 
                 else -> value.toString()
             }
         }
-
 }

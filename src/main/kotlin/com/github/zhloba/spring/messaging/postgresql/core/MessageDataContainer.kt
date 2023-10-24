@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class MessageDataContainer(
     val payload: String?,
-    val headers: Map<String, @Contextual Any>
+    val headers: Map<String, @Contextual Any>,
 )

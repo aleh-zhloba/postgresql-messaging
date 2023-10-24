@@ -25,9 +25,8 @@ import java.util.concurrent.Executor
 class PostgresMethodMessageHandler(
     private val postgresEventBus: PostgresNotificationEventBus,
     private val messageConverter: MessageConverter,
-    private val messageContainerConverter: NotificationMessageConverter
+    private val messageContainerConverter: NotificationMessageConverter,
 ) : AbstractMethodMessageHandler<PostgresMethodMessageHandler.MappingData>(), SmartLifecycle {
-
     private var messageHandlingScheduler: Scheduler = Schedulers.boundedElastic()
     private var methodArgumentResolverConversionService: ConversionService = DefaultConversionService()
     private var processDisposable: Disposable? = null
@@ -62,7 +61,10 @@ class PostgresMethodMessageHandler(
 
     override fun isHandler(beanType: Class<*>): Boolean = true
 
-    override fun getMappingForMethod(method: Method, handlerType: Class<*>): MappingData? {
+    override fun getMappingForMethod(
+        method: Method,
+        handlerType: Class<*>,
+    ): MappingData? {
         val postgresListenerAnnotation =
             AnnotationUtils.findAnnotation(method, PostgresNotificationListener::class.java)
         if (postgresListenerAnnotation != null && postgresListenerAnnotation.value.isNotEmpty()) {
@@ -81,10 +83,13 @@ class PostgresMethodMessageHandler(
         return message.headers[CHANNEL].toString()
     }
 
-    override fun getMatchingMapping(mapping: MappingData, message: Message<*>): MappingData? =
+    override fun getMatchingMapping(
+        mapping: MappingData,
+        message: Message<*>,
+    ): MappingData? =
         mapping.takeIf {
             mapping.channels.contains(getDestination(message)) &&
-            !(mapping.skipLocal && message.headers[IS_LOCAL] == true)
+                !(mapping.skipLocal && message.headers[IS_LOCAL] == true)
         }
 
     override fun getMappingComparator(message: Message<*>): Comparator<MappingData> = ComparableComparator()
@@ -100,19 +105,18 @@ class PostgresMethodMessageHandler(
 
     override fun start() {
         val channelsToListen = handlerMethods.keys.flatMap { it.channels }
-        processDisposable = postgresEventBus.listen(channelsToListen)
-            .publishOn(messageHandlingScheduler)
-            .doOnNext { event ->
-                handleMessage(messageContainerConverter.fromNotification(event))
-            }
-            .subscribe()
+        processDisposable =
+            postgresEventBus.listen(channelsToListen)
+                .publishOn(messageHandlingScheduler)
+                .doOnNext { event ->
+                    handleMessage(messageContainerConverter.fromNotification(event))
+                }
+                .subscribe()
     }
 
     override fun stop() {
         processDisposable?.dispose()
     }
 
-    override fun isRunning(): Boolean =
-        processDisposable.let { it != null && !it.isDisposed }
-
+    override fun isRunning(): Boolean = processDisposable.let { it != null && !it.isDisposed }
 }

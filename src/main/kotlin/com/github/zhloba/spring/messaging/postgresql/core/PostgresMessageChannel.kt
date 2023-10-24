@@ -8,12 +8,14 @@ import org.springframework.messaging.support.AbstractSubscribableChannel
 class PostgresMessageChannel(
     private val eventBus: PostgresNotificationEventBus,
     private val converter: NotificationMessageConverter,
-    private val channelName: String
+    private val channelName: String,
 ) : AbstractSubscribableChannel() {
-
     fun getChannelName(): String = channelName
 
-    override fun sendInternal(message: Message<*>, timeout: Long): Boolean {
+    override fun sendInternal(
+        message: Message<*>,
+        timeout: Long,
+    ): Boolean {
         val notificationMessagePayload = converter.toNotificationPayload(message)
 
         try {
