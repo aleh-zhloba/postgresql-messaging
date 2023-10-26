@@ -1,4 +1,4 @@
-package com.github.zhloba.spring.messaging.postgresql.core
+package com.github.zhloba.postgresql.messaging.spring
 
 import org.springframework.messaging.handler.annotation.MessageMapping
 

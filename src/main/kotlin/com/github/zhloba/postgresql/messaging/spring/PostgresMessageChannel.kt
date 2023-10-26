@@ -1,17 +1,15 @@
-package com.github.zhloba.spring.messaging.postgresql.core
+package com.github.zhloba.postgresql.messaging.spring
 
-import com.github.zhloba.spring.messaging.postgresql.converter.NotificationMessageConverter
-import com.github.zhloba.spring.messaging.postgresql.eventbus.PostgresNotificationEventBus
+import com.github.zhloba.postgresql.messaging.eventbus.PostgresNotificationEventBus
+import com.github.zhloba.postgresql.messaging.spring.converter.NotificationMessageConverter
 import org.springframework.messaging.Message
 import org.springframework.messaging.support.AbstractSubscribableChannel
 
 class PostgresMessageChannel(
     private val eventBus: PostgresNotificationEventBus,
     private val converter: NotificationMessageConverter,
-    private val channelName: String,
+    val channelName: String,
 ) : AbstractSubscribableChannel() {
-    fun getChannelName(): String = channelName
-
     override fun sendInternal(
         message: Message<*>,
         timeout: Long,

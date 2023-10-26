@@ -1,4 +1,4 @@
-package com.github.zhloba.spring.messaging.postgresql.core
+package com.github.zhloba.postgresql.messaging.spring
 
 object PostgresMessageHeaders {
     const val CHANNEL = "channel"

@@ -1,7 +1,6 @@
-package com.github.zhloba.spring.messaging.postgresql.converter
+package com.github.zhloba.postgresql.messaging.spring.converter
 
-import com.github.zhloba.spring.messaging.postgresql.core.MessageDataContainer
-import com.github.zhloba.spring.messaging.postgresql.eventbus.NotificationEvent
+import com.github.zhloba.postgresql.messaging.eventbus.NotificationEvent
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -12,7 +11,7 @@ import java.lang.String.valueOf
 class KotlinXNotificationMessageConverter : BaseNotificationMessageConverter() {
     override fun fromNotification(notificationEvent: NotificationEvent): Message<String> =
         notificationEvent.payload?.let { payload ->
-            val container = Json.decodeFromString<MessageDataContainer>(payload)
+            val container = Json.decodeFromString<NotificationMessageContainer>(payload)
             buildMessage(notificationEvent, container.payload, container.headers)
         } ?: buildMessage(notificationEvent, null, mapOf())
 

@@ -1,4 +1,4 @@
-package com.github.zhloba.spring.messaging.postgresql.eventbus
+package com.github.zhloba.postgresql.messaging.eventbus
 
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import io.r2dbc.postgresql.api.Notification
@@ -101,7 +101,8 @@ class R2DBCPostgresNotificationEventBus(
                                         inboundSink.emitNext(it, Sinks.EmitFailureHandler.FAIL_FAST)
                                     } catch (e: Exception) {
                                         logger.error(
-                                            "Notification [name=${it.name}, parameter=${it.parameter}, processId=${it.processId}] can't be emitted",
+                                            "Notification [name=${it.name}, " +
+                                                "parameter=${it.parameter}, processId=${it.processId}] can't be emitted",
                                             e,
                                         )
                                     }

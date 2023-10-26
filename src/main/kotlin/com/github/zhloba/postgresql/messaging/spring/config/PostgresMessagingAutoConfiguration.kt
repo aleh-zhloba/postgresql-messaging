@@ -1,12 +1,12 @@
-package com.github.zhloba.spring.messaging.postgresql.config
+package com.github.zhloba.postgresql.messaging.spring.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.zhloba.spring.messaging.postgresql.converter.JacksonNotificationMessageConverter
-import com.github.zhloba.spring.messaging.postgresql.converter.NotificationMessageConverter
-import com.github.zhloba.spring.messaging.postgresql.core.PostgresMessageSendingTemplate
-import com.github.zhloba.spring.messaging.postgresql.core.PostgresMethodMessageHandler
-import com.github.zhloba.spring.messaging.postgresql.eventbus.PostgresNotificationEventBus
-import com.github.zhloba.spring.messaging.postgresql.eventbus.R2DBCPostgresNotificationEventBus
+import com.github.zhloba.postgresql.messaging.eventbus.PostgresNotificationEventBus
+import com.github.zhloba.postgresql.messaging.eventbus.R2DBCPostgresNotificationEventBus
+import com.github.zhloba.postgresql.messaging.spring.PostgresMessageSendingTemplate
+import com.github.zhloba.postgresql.messaging.spring.PostgresMethodMessageHandler
+import com.github.zhloba.postgresql.messaging.spring.converter.JacksonNotificationMessageConverter
+import com.github.zhloba.postgresql.messaging.spring.converter.NotificationMessageConverter
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.Wrapped

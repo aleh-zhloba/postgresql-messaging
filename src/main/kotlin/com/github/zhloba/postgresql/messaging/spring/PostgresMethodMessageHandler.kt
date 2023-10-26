@@ -1,9 +1,9 @@
-package com.github.zhloba.spring.messaging.postgresql.core
+package com.github.zhloba.postgresql.messaging.spring
 
-import com.github.zhloba.spring.messaging.postgresql.converter.NotificationMessageConverter
-import com.github.zhloba.spring.messaging.postgresql.core.PostgresMessageHeaders.CHANNEL
-import com.github.zhloba.spring.messaging.postgresql.core.PostgresMessageHeaders.IS_LOCAL
-import com.github.zhloba.spring.messaging.postgresql.eventbus.PostgresNotificationEventBus
+import com.github.zhloba.postgresql.messaging.eventbus.PostgresNotificationEventBus
+import com.github.zhloba.postgresql.messaging.spring.PostgresMessageHeaders.CHANNEL
+import com.github.zhloba.postgresql.messaging.spring.PostgresMessageHeaders.IS_LOCAL
+import com.github.zhloba.postgresql.messaging.spring.converter.NotificationMessageConverter
 import org.springframework.context.SmartLifecycle
 import org.springframework.core.annotation.AnnotationUtils
 import org.springframework.core.convert.ConversionService
@@ -14,7 +14,12 @@ import org.springframework.messaging.handler.annotation.support.AnnotationExcept
 import org.springframework.messaging.handler.annotation.support.HeaderMethodArgumentResolver
 import org.springframework.messaging.handler.annotation.support.MessageMethodArgumentResolver
 import org.springframework.messaging.handler.annotation.support.PayloadMethodArgumentResolver
-import org.springframework.messaging.handler.invocation.*
+import org.springframework.messaging.handler.invocation.AbstractExceptionHandlerMethodResolver
+import org.springframework.messaging.handler.invocation.AbstractMethodMessageHandler
+import org.springframework.messaging.handler.invocation.CompletableFutureReturnValueHandler
+import org.springframework.messaging.handler.invocation.HandlerMethodArgumentResolver
+import org.springframework.messaging.handler.invocation.HandlerMethodReturnValueHandler
+import org.springframework.messaging.handler.invocation.ReactiveReturnValueHandler
 import org.springframework.util.comparator.ComparableComparator
 import reactor.core.Disposable
 import reactor.core.scheduler.Scheduler

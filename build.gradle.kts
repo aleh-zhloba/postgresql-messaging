@@ -16,23 +16,18 @@ plugins {
     id("org.jmailen.kotlinter") version "4.0.0"
 }
 
-group = "com.github.aleh-zhloba"
+group = "io.github.aleh-zhloba"
 version = "0.0.1-SNAPSHOT"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
 
-    registerFeature("kotlinx") {
-        usingSourceSet(sourceSets["main"])
-    }
-}
+//    registerFeature("kotlinx") {
+//        usingSourceSet(sourceSets["main"])
+//    }
 
-tasks.named<Jar>("jar") {
-    enabled = true
-}
-
-tasks.named<BootJar>("bootJar") {
-    enabled = false
+    withJavadocJar()
+    withSourcesJar()
 }
 
 repositories {
@@ -47,8 +42,9 @@ dependencies {
     compileOnly("com.fasterxml.jackson.core:jackson-databind")
     compileOnly("org.postgresql:r2dbc-postgresql:1.0.2.RELEASE")
     compileOnly("io.projectreactor.kotlin:reactor-kotlin-extensions:1.2.2")
+    compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
-    "kotlinxImplementation"("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
+    //"kotlinxImplementation"("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
@@ -62,6 +58,15 @@ dependencies {
     testImplementation("org.postgresql:r2dbc-postgresql:1.0.2.RELEASE")
     testImplementation("io.projectreactor:reactor-test")
     testImplementation("io.projectreactor.kotlin:reactor-kotlin-extensions:1.2.2")
+}
+
+tasks.named<Jar>("jar") {
+    enabled = true
+    archiveClassifier = ""
+}
+
+tasks.named<BootJar>("bootJar") {
+    enabled = false
 }
 
 tasks.withType<KotlinCompile> {
@@ -90,14 +95,14 @@ publishing {
             name = "deploy"
             url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
             credentials {
-                username = System.getenv("OSSRH_USERNAME") ?: ""
-                password = System.getenv("OSSRH_PASSWORD") ?: ""
+                username = "OSSRH_USERNAME".env()
+                password = "OSSRH_PASSWORD".env()
             }
         }
     }
 
     publications {
-        create<MavenPublication>("mavenJava") {
+        create<MavenPublication>("main") {
             pom {
                 from(components["java"])
                 name = "messaging-postgresql"
@@ -125,3 +130,17 @@ publishing {
         }
     }
 }
+
+signing {
+//    useInMemoryPgpKeys(
+//        "SIGNING_KEY_ID".env(),
+//        "SIGNING_KEY".env(),
+//        "SIGNING_PASSWORD".env()
+//    )
+//    setRequired({
+//        (project.extra["isReleaseVersion"] as Boolean) && gradle.taskGraph.hasTask("publish")
+//    })
+    sign(publishing.publications["main"])
+}
+
+fun String.env() = System.getenv(this) ?: ""

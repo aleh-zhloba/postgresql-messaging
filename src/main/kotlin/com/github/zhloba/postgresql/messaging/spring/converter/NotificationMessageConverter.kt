@@ -1,7 +1,7 @@
-package com.github.zhloba.spring.messaging.postgresql.converter
+package com.github.zhloba.postgresql.messaging.spring.converter
 
-import com.github.zhloba.spring.messaging.postgresql.core.PostgresMessageHeaders.IS_LOCAL
-import com.github.zhloba.spring.messaging.postgresql.eventbus.NotificationEvent
+import com.github.zhloba.postgresql.messaging.eventbus.NotificationEvent
+import com.github.zhloba.postgresql.messaging.spring.PostgresMessageHeaders.IS_LOCAL
 import org.springframework.messaging.Message
 import org.springframework.messaging.MessageHeaders
 import org.springframework.messaging.support.MessageBuilder
