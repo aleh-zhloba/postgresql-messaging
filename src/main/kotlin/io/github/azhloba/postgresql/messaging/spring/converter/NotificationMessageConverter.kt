@@ -1,7 +1,8 @@
-package com.github.zhloba.postgresql.messaging.spring.converter
+package io.github.azhloba.postgresql.messaging.spring.converter
 
-import com.github.zhloba.postgresql.messaging.eventbus.NotificationEvent
-import com.github.zhloba.postgresql.messaging.spring.PostgresMessageHeaders.IS_LOCAL
+import io.github.azhloba.postgresql.messaging.eventbus.NotificationEvent
+import io.github.azhloba.postgresql.messaging.spring.PostgresMessageHeaders.CHANNEL
+import io.github.azhloba.postgresql.messaging.spring.PostgresMessageHeaders.IS_LOCAL
 import org.springframework.messaging.Message
 import org.springframework.messaging.MessageHeaders
 import org.springframework.messaging.support.MessageBuilder
@@ -27,7 +28,7 @@ abstract class BaseNotificationMessageConverter : NotificationMessageConverter {
     }
 
     private fun getCommonNotificationHeaders(notificationEvent: NotificationEvent): Map<String, Any> =
-        mapOf(IS_LOCAL to notificationEvent.isLocal)
+        mapOf(CHANNEL to notificationEvent.channel, IS_LOCAL to notificationEvent.isLocal)
 
     protected fun normalizeHeaders(headers: Map<String, Any?>): Map<String, Any?> =
         headers.mapValues { (_, value) ->

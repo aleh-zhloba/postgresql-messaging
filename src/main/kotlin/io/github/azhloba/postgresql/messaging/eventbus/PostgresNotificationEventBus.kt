@@ -1,4 +1,4 @@
-package com.github.zhloba.postgresql.messaging.eventbus
+package io.github.azhloba.postgresql.messaging.eventbus
 
 import reactor.core.publisher.Flux
 

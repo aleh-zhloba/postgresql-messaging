@@ -1,7 +1,7 @@
-package com.github.zhloba.postgresql.messaging.spring
+package io.github.azhloba.postgresql.messaging.spring
 
-import com.github.zhloba.postgresql.messaging.eventbus.PostgresNotificationEventBus
-import com.github.zhloba.postgresql.messaging.spring.converter.NotificationMessageConverter
+import io.github.azhloba.postgresql.messaging.eventbus.PostgresNotificationEventBus
+import io.github.azhloba.postgresql.messaging.spring.converter.NotificationMessageConverter
 import org.springframework.messaging.Message
 import org.springframework.messaging.support.AbstractSubscribableChannel
 

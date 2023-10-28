@@ -1,12 +1,13 @@
-package com.github.zhloba.postgresql.messaging.spring.config
+package io.github.azhloba.postgresql.messaging.spring.config
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.zhloba.postgresql.messaging.eventbus.PostgresNotificationEventBus
-import com.github.zhloba.postgresql.messaging.eventbus.R2DBCPostgresNotificationEventBus
-import com.github.zhloba.postgresql.messaging.spring.PostgresMessageSendingTemplate
-import com.github.zhloba.postgresql.messaging.spring.PostgresMethodMessageHandler
-import com.github.zhloba.postgresql.messaging.spring.converter.JacksonNotificationMessageConverter
-import com.github.zhloba.postgresql.messaging.spring.converter.NotificationMessageConverter
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import io.github.azhloba.postgresql.messaging.eventbus.PostgresNotificationEventBus
+import io.github.azhloba.postgresql.messaging.eventbus.R2DBCPostgresNotificationEventBus
+import io.github.azhloba.postgresql.messaging.spring.PostgresMessageSendingTemplate
+import io.github.azhloba.postgresql.messaging.spring.PostgresMethodMessageHandler
+import io.github.azhloba.postgresql.messaging.spring.converter.JacksonNotificationMessageConverter
+import io.github.azhloba.postgresql.messaging.spring.converter.NotificationMessageConverter
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import io.r2dbc.spi.ConnectionFactory
 import io.r2dbc.spi.Wrapped
@@ -35,6 +36,9 @@ class PostgresMessagingAutoConfiguration {
                 else -> ObjectMapper()
             }
 
+
+        objectMapper.registerKotlinModule()
+
         return JacksonNotificationMessageConverter(objectMapper)
     }
 
@@ -47,7 +51,7 @@ class PostgresMessagingAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     fun postgresMessageSendingTemplate(
-        postgresEventBus: R2DBCPostgresNotificationEventBus,
+        postgresEventBus: PostgresNotificationEventBus,
         messageConverter: MessageConverter,
         messageContainerConverter: NotificationMessageConverter,
     ): PostgresMessageSendingTemplate {

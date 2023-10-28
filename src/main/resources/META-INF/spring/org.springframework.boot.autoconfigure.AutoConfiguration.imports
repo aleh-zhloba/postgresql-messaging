@@ -1,1 +1,1 @@
-com.github.zhloba.spring.messaging.postgresql.config.PostgresMessagingConfig
+io.github.azhloba.postgresql.messaging.spring.config.PostgresMessagingAutoConfiguration

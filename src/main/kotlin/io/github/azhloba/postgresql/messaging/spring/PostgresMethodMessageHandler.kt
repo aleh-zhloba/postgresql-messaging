@@ -1,9 +1,9 @@
-package com.github.zhloba.postgresql.messaging.spring
+package io.github.azhloba.postgresql.messaging.spring
 
-import com.github.zhloba.postgresql.messaging.eventbus.PostgresNotificationEventBus
-import com.github.zhloba.postgresql.messaging.spring.PostgresMessageHeaders.CHANNEL
-import com.github.zhloba.postgresql.messaging.spring.PostgresMessageHeaders.IS_LOCAL
-import com.github.zhloba.postgresql.messaging.spring.converter.NotificationMessageConverter
+import io.github.azhloba.postgresql.messaging.eventbus.PostgresNotificationEventBus
+import io.github.azhloba.postgresql.messaging.spring.PostgresMessageHeaders.CHANNEL
+import io.github.azhloba.postgresql.messaging.spring.PostgresMessageHeaders.IS_LOCAL
+import io.github.azhloba.postgresql.messaging.spring.converter.NotificationMessageConverter
 import org.springframework.context.SmartLifecycle
 import org.springframework.core.annotation.AnnotationUtils
 import org.springframework.core.convert.ConversionService

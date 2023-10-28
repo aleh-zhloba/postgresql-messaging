@@ -1,14 +1,14 @@
-package com.github.zhloba.postgresql.messaging.spring
+package io.github.azhloba.postgresql.messaging.spring
 
-import com.github.zhloba.postgresql.messaging.eventbus.R2DBCPostgresNotificationEventBus
-import com.github.zhloba.postgresql.messaging.spring.converter.NotificationMessageConverter
+import io.github.azhloba.postgresql.messaging.eventbus.PostgresNotificationEventBus
+import io.github.azhloba.postgresql.messaging.spring.converter.NotificationMessageConverter
 import org.springframework.messaging.Message
 import org.springframework.messaging.core.AbstractMessageSendingTemplate
 import org.springframework.messaging.core.DestinationResolvingMessageSendingOperations
 import org.springframework.messaging.core.MessagePostProcessor
 
 class PostgresMessageSendingTemplate(
-    private val eventBus: R2DBCPostgresNotificationEventBus,
+    private val eventBus: PostgresNotificationEventBus,
     private val notificationMessageConverter: NotificationMessageConverter,
 ) : AbstractMessageSendingTemplate<PostgresMessageChannel>(),
     DestinationResolvingMessageSendingOperations<PostgresMessageChannel> {

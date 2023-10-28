@@ -40,6 +40,8 @@ dependencies {
     compileOnly("org.springframework.boot:spring-boot-autoconfigure")
 
     compileOnly("com.fasterxml.jackson.core:jackson-databind")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+
     compileOnly("org.postgresql:r2dbc-postgresql:1.0.2.RELEASE")
     compileOnly("io.projectreactor.kotlin:reactor-kotlin-extensions:1.2.2")
     compileOnly("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
@@ -83,6 +85,8 @@ tasks.withType<Test> {
 kotlinter {
     ignoreFailures = false
     reporters = arrayOf("checkstyle", "plain")
+
+
 }
 
 tasks.check {
@@ -106,7 +110,7 @@ publishing {
             pom {
                 from(components["java"])
                 name = "messaging-postgresql"
-                description = "Convenient event bus for PostgreSQL-backed distributed JVM applications"
+                description = "Convenient event bus for PostgreSQL-backed JVM applications"
                 url = "https://github.com/aleh-zhloba/postgresql-messaging"
                 licenses {
                     license {

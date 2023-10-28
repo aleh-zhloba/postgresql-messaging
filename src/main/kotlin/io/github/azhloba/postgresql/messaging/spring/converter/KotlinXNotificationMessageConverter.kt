@@ -1,6 +1,6 @@
-package com.github.zhloba.postgresql.messaging.spring.converter
+package io.github.azhloba.postgresql.messaging.spring.converter
 
-import com.github.zhloba.postgresql.messaging.eventbus.NotificationEvent
+import io.github.azhloba.postgresql.messaging.eventbus.NotificationEvent
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

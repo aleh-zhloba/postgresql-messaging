@@ -1,6 +1,6 @@
-package com.github.zhloba.postgresql.messaging.eventbus
+package io.github.azhloba.postgresql.messaging.eventbus
 
-import com.github.zhloba.postgresql.messaging.spring.config.PostgresMessagingAutoConfiguration
+import io.github.azhloba.postgresql.messaging.spring.config.PostgresMessagingAutoConfiguration
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.springframework.beans.factory.annotation.Autowired

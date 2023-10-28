@@ -1,15 +1,13 @@
-package com.github.zhloba.postgresql.messaging.spring.converter
+package io.github.azhloba.postgresql.messaging.spring.converter
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.zhloba.postgresql.messaging.eventbus.NotificationEvent
-import kotlinx.serialization.json.Json
+import io.github.azhloba.postgresql.messaging.eventbus.NotificationEvent
 import org.springframework.messaging.Message
 
 class JacksonNotificationMessageConverter(private val objectMapper: ObjectMapper) : BaseNotificationMessageConverter() {
     override fun fromNotification(notificationEvent: NotificationEvent): Message<String> =
         notificationEvent.payload?.let { payload ->
-            val container = Json.decodeFromString<NotificationMessageContainer>(payload)
+            val container = objectMapper.readValue(payload, NotificationMessageContainer::class.java)
             buildMessage(notificationEvent, container.payload, container.headers)
         } ?: buildMessage(notificationEvent, null, mapOf())
 
@@ -23,7 +21,7 @@ class JacksonNotificationMessageConverter(private val objectMapper: ObjectMapper
     }
 
     data class NotificationMessageContainer(
-        @JsonProperty("p") val payload: String?,
-        @JsonProperty("h") val headers: Map<String, Any?>,
+        val payload: String?,
+        val headers: Map<String, Any?>,
     )
 }
