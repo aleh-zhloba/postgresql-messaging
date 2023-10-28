@@ -36,7 +36,6 @@ class PostgresMessagingAutoConfiguration {
                 else -> ObjectMapper()
             }
 
-
         objectMapper.registerKotlinModule()
 
         return JacksonNotificationMessageConverter(objectMapper)
