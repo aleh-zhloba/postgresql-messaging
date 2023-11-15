@@ -12,11 +12,13 @@ import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
 import reactor.test.StepVerifier
 import java.time.Duration
+import kotlin.random.Random
+import kotlin.random.nextULong
 
 @SpringBootTest(classes = [R2dbcAutoConfiguration::class, PostgresMessagingAutoConfiguration::class])
 @Testcontainers
-class R2DBCPostgresNotificationEventBusTest(
-    @Autowired private val eventBus: PostgresNotificationEventBus,
+class ListenNotifyAsyncTest(
+    @Autowired private val eventBus: PostgresEventBus
 ) {
     companion object {
         @Container
@@ -26,20 +28,21 @@ class R2DBCPostgresNotificationEventBusTest(
                 .withDatabaseName("test")
                 .withUsername("postgres")
                 .withPassword("postgres")
+        val duration: Duration = Duration.ofSeconds(1)
     }
 
     @Test
-    fun `single message no listeners flow`() {
-        val channel = "test_channel1"
-        val payload = "test_notification1"
+    fun `single message single producer no listeners flow`() {
+        val channel = "test_channel_${Random.nextULong()}"
+        val payload = "test_notification"
 
-        assertDoesNotThrow { eventBus.notify(channel, payload) }
+        assertDoesNotThrow { eventBus.notifyAsync(channel, payload) }
     }
 
     @Test
-    fun `single message single listener flow`() {
-        val channel = "test_channel1"
-        val payload = "test_notification1"
+    fun `single message single producer single listener flow`() {
+        val channel = "test_channel_${Random.nextULong()}"
+        val payload = "test_notification"
 
         val verifier =
             StepVerifier.create(eventBus.listen(channel))
@@ -47,15 +50,15 @@ class R2DBCPostgresNotificationEventBusTest(
                 .thenCancel()
                 .verifyLater()
 
-        eventBus.notify(channel, payload)
+        eventBus.notifyAsync(channel, payload)
 
-        verifier.verify(Duration.ofMillis(500))
+        verifier.verify(duration)
     }
 
     @Test
-    fun `single message multiple listeners flow`() {
-        val channel = "test_channel1"
-        val payload = "test_notification1"
+    fun `single message single producer multiple listeners flow`() {
+        val channel = "test_channel_${Random.nextULong()}"
+        val payload = "test_notification"
 
         val verifiers =
             (1..32).map {
@@ -65,28 +68,50 @@ class R2DBCPostgresNotificationEventBusTest(
                     .verifyLater()
             }
 
-        eventBus.notify(channel, payload)
+        eventBus.notifyAsync(channel, payload)
 
-        verifiers.forEach { it.verify(Duration.ofMillis(500)) }
+        verifiers.forEach { it.verify(duration) }
     }
 
     @Test
-    fun `multiple messages multiple listeners preserve ordering flow`() {
-        val channel = "test_channel2"
+    fun `multiple messages single producer multiple listeners preserve ordering flow`() {
+        val channel = "test_channel_${Random.nextULong()}"
         val messageRange = 1..1024
 
+        val messageVerificationList = messageRange.map { it.toString() }
         val verifiers =
             (1..8).map {
                 StepVerifier.create(eventBus.listen(channel).map { it.payload })
-                    .expectNext(*messageRange.map { it.toString() }.toTypedArray())
+                    .expectNextSequence(messageVerificationList)
                     .thenCancel()
                     .verifyLater()
             }
 
         for (i in messageRange) {
-            eventBus.notify(channel, "$i")
+            eventBus.notifyAsync(channel, "$i")
         }
 
-        verifiers.forEach { it.verify(Duration.ofMillis(500)) }
+        verifiers.forEach { it.verify(duration) }
+    }
+
+    @Test
+    fun `multiple messages multiple producers multiple listeners`() {
+        val channel = "test_channel_${Random.nextULong()}"
+        val messageRange = 1..1024
+
+        val messageVerificationList = messageRange.map { it.toString() }
+        val verifiers =
+            (1..8).map {
+                StepVerifier.create(eventBus.listen(channel).map { it.payload })
+                    .expectNextSequence(messageVerificationList)
+                    .thenCancel()
+                    .verifyLater()
+            }
+
+        for (i in messageRange) {
+            eventBus.notifyAsync(channel, "$i")
+        }
+
+        verifiers.forEach { it.verify(duration) }
     }
 }

@@ -1,15 +1,12 @@
 package io.github.azhloba.postgresql.messaging.spring
 
-import io.github.azhloba.postgresql.messaging.eventbus.PostgresNotificationEventBus
 import io.github.azhloba.postgresql.messaging.spring.PostgresMessageHeaders.CHANNEL
 import io.github.azhloba.postgresql.messaging.spring.PostgresMessageHeaders.IS_LOCAL
-import io.github.azhloba.postgresql.messaging.spring.converter.NotificationMessageConverter
 import org.springframework.context.SmartLifecycle
 import org.springframework.core.annotation.AnnotationUtils
 import org.springframework.core.convert.ConversionService
 import org.springframework.core.convert.support.DefaultConversionService
 import org.springframework.messaging.Message
-import org.springframework.messaging.converter.MessageConverter
 import org.springframework.messaging.handler.annotation.support.AnnotationExceptionHandlerMethodResolver
 import org.springframework.messaging.handler.annotation.support.HeaderMethodArgumentResolver
 import org.springframework.messaging.handler.annotation.support.MessageMethodArgumentResolver
@@ -22,40 +19,25 @@ import org.springframework.messaging.handler.invocation.HandlerMethodReturnValue
 import org.springframework.messaging.handler.invocation.ReactiveReturnValueHandler
 import org.springframework.util.comparator.ComparableComparator
 import reactor.core.Disposable
-import reactor.core.scheduler.Scheduler
-import reactor.core.scheduler.Schedulers
 import java.lang.reflect.Method
-import java.util.concurrent.Executor
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.concurrent.Volatile
 
 class PostgresMethodMessageHandler(
-    private val postgresEventBus: PostgresNotificationEventBus,
-    private val messageConverter: MessageConverter,
-    private val messageContainerConverter: NotificationMessageConverter,
+    private val postgresMessagingTemplate: PostgresMessagingTemplate
 ) : AbstractMethodMessageHandler<PostgresMethodMessageHandler.MappingData>(), SmartLifecycle {
-    private var messageHandlingScheduler: Scheduler = Schedulers.boundedElastic()
-    private var methodArgumentResolverConversionService: ConversionService = DefaultConversionService()
-    private var processDisposable: Disposable? = null
+    var methodArgumentResolverConversionService: ConversionService = DefaultConversionService()
 
-    fun withExecutor(executor: Executor): PostgresMethodMessageHandler {
-        messageHandlingScheduler = Schedulers.fromExecutor(executor)
-        return this
-    }
+    private val subscribed = AtomicBoolean()
 
-    fun withScheduler(scheduler: Scheduler): PostgresMethodMessageHandler {
-        messageHandlingScheduler = scheduler
-        return this
-    }
-
-    fun withMethodArgumentResolverConversionService(conversionService: ConversionService): PostgresMethodMessageHandler {
-        methodArgumentResolverConversionService = conversionService
-        return this
-    }
+    @Volatile
+    private var subscription: Disposable? = null
 
     override fun initArgumentResolvers(): List<HandlerMethodArgumentResolver> =
         ArrayList<HandlerMethodArgumentResolver>(customArgumentResolvers).apply {
             add(HeaderMethodArgumentResolver(methodArgumentResolverConversionService, null))
-            add(MessageMethodArgumentResolver(messageConverter))
-            add(PayloadMethodArgumentResolver(messageConverter))
+            add(MessageMethodArgumentResolver(postgresMessagingTemplate.messageConverter))
+            add(PayloadMethodArgumentResolver(postgresMessagingTemplate.messageConverter))
         }
 
     override fun initReturnValueHandlers(): List<HandlerMethodReturnValueHandler> =
@@ -68,10 +50,10 @@ class PostgresMethodMessageHandler(
 
     override fun getMappingForMethod(
         method: Method,
-        handlerType: Class<*>,
+        handlerType: Class<*>
     ): MappingData? {
         val postgresListenerAnnotation =
-            AnnotationUtils.findAnnotation(method, PostgresNotificationListener::class.java)
+            AnnotationUtils.findAnnotation(method, PostgresMessageListener::class.java)
         if (postgresListenerAnnotation != null && postgresListenerAnnotation.value.isNotEmpty()) {
             val channels = postgresListenerAnnotation.value.filter { it.isNotBlank() }.toSet()
             val skipLocal = postgresListenerAnnotation.skipLocal
@@ -90,7 +72,7 @@ class PostgresMethodMessageHandler(
 
     override fun getMatchingMapping(
         mapping: MappingData,
-        message: Message<*>,
+        message: Message<*>
     ): MappingData? =
         mapping.takeIf {
             mapping.channels.contains(getDestination(message)) &&
@@ -109,19 +91,15 @@ class PostgresMethodMessageHandler(
     }
 
     override fun start() {
-        val channelsToListen = handlerMethods.keys.flatMap { it.channels }
-        processDisposable =
-            postgresEventBus.listen(channelsToListen)
-                .publishOn(messageHandlingScheduler)
-                .doOnNext { event ->
-                    handleMessage(messageContainerConverter.fromNotification(event))
-                }
-                .subscribe()
+        if (this.subscribed.compareAndSet(false, true)) {
+            val channelsToListen = handlerMethods.keys.flatMap { it.channels }.toSet()
+            this.subscription = postgresMessagingTemplate.receive(channelsToListen, this)
+        }
     }
 
     override fun stop() {
-        processDisposable?.dispose()
+        this.subscription?.dispose()
     }
 
-    override fun isRunning(): Boolean = processDisposable.let { it != null && !it.isDisposed }
+    override fun isRunning(): Boolean = this.subscribed.get()
 }

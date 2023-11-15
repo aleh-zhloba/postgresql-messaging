@@ -14,20 +14,23 @@ interface NotificationMessageConverter {
 }
 
 abstract class BaseNotificationMessageConverter : NotificationMessageConverter {
-    protected fun buildMessage(
-        notificationEvent: NotificationEvent,
-        messagePayload: String?,
-        messageHeaders: Map<String, Any?>,
-    ): Message<String> {
-        val notificationMessageHeaders =
-            HashMap<String, Any?>(messageHeaders).apply {
-                putAll(getCommonNotificationHeaders(notificationEvent))
-            }
+    abstract fun fromPayload(payload: String): MessageContainer
 
-        return MessageBuilder.createMessage(messagePayload, MessageHeaders(notificationMessageHeaders))
+    override fun fromNotification(notificationEvent: NotificationEvent): Message<String> {
+        val messageContainer =
+            notificationEvent.payload?.let { payload ->
+                fromPayload(payload)
+            }
+        val messageContainerHeaders = messageContainer?.let { HashMap<String, Any?>(it.headers) } ?: mutableMapOf()
+        val messageHeaders =
+            MessageHeaders(
+                messageContainerHeaders.apply { putAll(getCommonNotificationHeaders(notificationEvent)) }
+            )
+
+        return MessageBuilder.createMessage(messageContainer?.payload, messageHeaders)
     }
 
-    private fun getCommonNotificationHeaders(notificationEvent: NotificationEvent): Map<String, Any> =
+    protected fun getCommonNotificationHeaders(notificationEvent: NotificationEvent): Map<String, Any> =
         mapOf(CHANNEL to notificationEvent.channel, IS_LOCAL to notificationEvent.isLocal)
 
     protected fun normalizeHeaders(headers: Map<String, Any?>): Map<String, Any?> =
@@ -35,10 +38,15 @@ abstract class BaseNotificationMessageConverter : NotificationMessageConverter {
             when (value) {
                 null,
                 is Boolean,
-                is Number,
+                is Number
                 -> value
 
                 else -> value.toString()
             }
         }
+}
+
+interface MessageContainer {
+    val payload: String?
+    val headers: Map<String, Any?>
 }

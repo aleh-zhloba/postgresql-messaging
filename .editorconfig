@@ -1,14 +1,15 @@
-# EditorConfig helps developers define and maintain consistent
-# coding styles between different editors and IDEs
 # editorconfig.org
 root = true
 
-[*.{kt,kts}]
-indent_style = space
-indent_size = 4
-
-# We recommend you to keep these unchanged
+[*]
 end_of_line = lf
 charset = utf-8
 trim_trailing_whitespace = true
 insert_final_newline = true
+
+[*.{kt,kts}]
+indent_style = space
+indent_size = 4
+ij_kotlin_allow_trailing_comma = false
+ij_kotlin_allow_trailing_comma_on_call_site = false
+ij_kotlin_packages_to_use_import_on_demand = java.util.*

@@ -6,11 +6,13 @@ import org.springframework.messaging.handler.annotation.MessageMapping
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 @MessageMapping
-annotation class PostgresNotificationListener(
+annotation class PostgresMessageListener(
     /**
      * List of listen/notify channels
-     * @return list of channels
      */
     vararg val value: String = [],
-    val skipLocal: Boolean = false,
+    /**
+     * Defines if it's needed to skip events from the same instance
+     */
+    val skipLocal: Boolean = false
 )
