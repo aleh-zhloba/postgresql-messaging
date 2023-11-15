@@ -306,8 +306,9 @@ data class R2dbcPostgresEventBusConfig(
     /*
     Notify properties
      */
-    val notifyRetry: RetryBackoffSpec = Retry.backoff(3, Duration.ofMillis(50))
-        .filter { it is NoActiveConnectionException }
+    val notifyRetry: RetryBackoffSpec =
+        Retry.backoff(3, Duration.ofMillis(50))
+            .filter { it is NoActiveConnectionException }
 )
 
 data class PostgresNotificationEvent(
