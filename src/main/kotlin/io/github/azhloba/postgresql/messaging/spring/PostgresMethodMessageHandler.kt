@@ -93,7 +93,7 @@ class PostgresMethodMessageHandler(
     override fun start() {
         if (this.subscribed.compareAndSet(false, true)) {
             val channelsToListen = handlerMethods.keys.flatMap { it.channels }.toSet()
-            this.subscription = postgresMessagingTemplate.receive(channelsToListen, this)
+            this.subscription = postgresMessagingTemplate.listen(channelsToListen, this)
         }
     }
 

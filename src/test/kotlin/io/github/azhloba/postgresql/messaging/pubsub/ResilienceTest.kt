@@ -1,4 +1,4 @@
-package io.github.azhloba.postgresql.messaging.eventbus
+package io.github.azhloba.postgresql.messaging.pubsub
 
 import eu.rekawek.toxiproxy.Proxy
 import eu.rekawek.toxiproxy.ToxiproxyClient
@@ -26,7 +26,7 @@ import kotlin.random.nextULong
 @Testcontainers
 @ContextConfiguration
 class ResilienceTest(
-    @Autowired private val eventBus: PostgresEventBus
+    @Autowired private val pubSub: PostgresPubSub
 ) {
     companion object {
         private val network: Network = Network.newNetwork()
@@ -80,7 +80,7 @@ class ResilienceTest(
 
         val verifier =
             StepVerifier.create(
-                eventBus.listen(channel)
+                pubSub.subscribe(channel)
                     .map { it.payload }
             )
                 .expectNext(message)
@@ -90,7 +90,7 @@ class ResilienceTest(
         Thread.sleep(1000)
         proxy.toxics()["RESET_PEER"].remove()
 
-        eventBus.notifyAsync(channel, message)
+        pubSub.publishAsync(channel, message)
 
         verifier.verify(Duration.ofSeconds(2))
     }

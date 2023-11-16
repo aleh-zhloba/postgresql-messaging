@@ -1,27 +1,27 @@
-package io.github.azhloba.postgresql.messaging.eventbus
+package io.github.azhloba.postgresql.messaging.pubsub
 
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 /**
- * Generic interface for Postgresql listen/notify event bus
+ * Generic interface for Postgresql publish/subscribe implementations
  *
  * @author Aleh Zhloba
  */
-interface PostgresEventBus {
+interface PostgresPubSub : AutoCloseable {
     /**
      * Subscribe to the given channels notification events
      * @param channels listening channels
      * @return notification events [Flux]
      */
-    fun listen(vararg channels: String): Flux<out NotificationEvent>
+    fun subscribe(vararg channels: String): Flux<out NotificationEvent>
 
     /**
      * Subscribe to the given channels notification events
      * @param channels listening channels
      * @return notification events [Flux]
      */
-    fun listen(channels: Collection<String>): Flux<out NotificationEvent>
+    fun subscribe(channels: Collection<String>): Flux<out NotificationEvent>
 
     /**
      * Publish notification event
@@ -29,7 +29,7 @@ interface PostgresEventBus {
      * @param payload event payload, may be null
      * @return operation result [Mono]
      */
-    fun notify(
+    fun publish(
         channel: String,
         payload: String?
     ): Mono<Void>
@@ -39,24 +39,28 @@ interface PostgresEventBus {
      * @param requests notification event requests
      * @return operation result [Mono]
      */
-    fun notify(vararg requests: NotificationRequest): Mono<Void>
+    fun publish(vararg requests: NotificationRequest): Mono<Void>
 
     /**
      * Publish notification events
      * @param requests notification event requests
      * @return operation result [Mono]
      */
-    fun notify(requests: Collection<NotificationRequest>): Mono<Void>
+    fun publish(requests: Collection<NotificationRequest>): Mono<Void>
 
     /**
      * Publish notification event asynchronously
      * @param channel event destination channel
      * @param payload event payload, may be null
      */
-    fun notifyAsync(
+    fun publishAsync(
         channel: String,
         payload: String?
     )
+
+    fun connect()
+
+    fun shutdown()
 
     companion object {
         private const val MAX_IDENTIFIER_SIZE = 63

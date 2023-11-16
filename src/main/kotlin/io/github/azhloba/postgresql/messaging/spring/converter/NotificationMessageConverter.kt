@@ -1,6 +1,6 @@
 package io.github.azhloba.postgresql.messaging.spring.converter
 
-import io.github.azhloba.postgresql.messaging.eventbus.NotificationEvent
+import io.github.azhloba.postgresql.messaging.pubsub.NotificationEvent
 import io.github.azhloba.postgresql.messaging.spring.PostgresMessageHeaders.CHANNEL
 import io.github.azhloba.postgresql.messaging.spring.PostgresMessageHeaders.IS_LOCAL
 import org.springframework.messaging.Message

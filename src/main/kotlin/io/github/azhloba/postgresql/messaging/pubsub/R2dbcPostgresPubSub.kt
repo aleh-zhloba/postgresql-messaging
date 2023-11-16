@@ -1,12 +1,11 @@
-package io.github.azhloba.postgresql.messaging.eventbus
+package io.github.azhloba.postgresql.messaging.pubsub
 
-import io.github.azhloba.postgresql.messaging.eventbus.PostgresEventBus.Companion.isValidPostgresIdentifier
+import io.github.azhloba.postgresql.messaging.pubsub.PostgresPubSub.Companion.isValidPostgresIdentifier
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
 import io.r2dbc.postgresql.api.Notification
 import io.r2dbc.postgresql.api.PostgresqlConnection
 import io.r2dbc.postgresql.client.Client
 import org.apache.commons.logging.LogFactory
-import org.springframework.context.SmartLifecycle
 import reactor.core.Disposable
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -24,16 +23,16 @@ import java.util.concurrent.CopyOnWriteArraySet
 import java.util.concurrent.atomic.AtomicReference
 
 /**
- * An [PostgresEventBus] implementation using Postgresql R2DBC connection.
+ * An [PostgresPubSub] implementation using R2DBC connection.
  * @param connectionFactory PostgreSQL R2DB connection factory
- * @param config event bus configuration
+ * @param config configuration
  *
  * @author Aleh Zhloba
  */
-class R2dbcPostgresEventBus(
+class R2dbcPostgresPubSub(
     private val connectionFactory: PostgresqlConnectionFactory,
-    private val config: R2dbcPostgresEventBusConfig = R2dbcPostgresEventBusConfig()
-) : PostgresEventBus, SmartLifecycle {
+    private val config: R2dbcPostgresPubSubConfig = R2dbcPostgresPubSubConfig()
+) : PostgresPubSub, AutoCloseable {
     private val logger = LogFactory.getLog(javaClass)
 
     private val inboundSink =
@@ -52,7 +51,7 @@ class R2dbcPostgresEventBus(
 
     private var inboundNotificationsProcessing: Disposable? = null
 
-    override fun notifyAsync(
+    override fun publishAsync(
         channel: String,
         payload: String?
     ) {
@@ -74,14 +73,14 @@ class R2dbcPostgresEventBus(
         }
     }
 
-    override fun notify(
+    override fun publish(
         channel: String,
         payload: String?
-    ): Mono<Void> = notify(NotificationRequest(channel, payload))
+    ): Mono<Void> = publish(NotificationRequest(channel, payload))
 
-    override fun notify(vararg requests: NotificationRequest): Mono<Void> = notify(requests.toList())
+    override fun publish(vararg requests: NotificationRequest): Mono<Void> = publish(requests.toList())
 
-    override fun notify(requests: Collection<NotificationRequest>): Mono<Void> {
+    override fun publish(requests: Collection<NotificationRequest>): Mono<Void> {
         requests.forEach { require(isValidPostgresIdentifier(it.channel)) }
 
         val notifyMono =
@@ -97,9 +96,9 @@ class R2dbcPostgresEventBus(
         return notifyMono.retryWhen(config.notifyRetry)
     }
 
-    override fun listen(vararg channels: String): Flux<NotificationEvent> = listen(channels.toList())
+    override fun subscribe(vararg channels: String): Flux<NotificationEvent> = subscribe(channels.toList())
 
-    override fun listen(channels: Collection<String>): Flux<NotificationEvent> {
+    override fun subscribe(channels: Collection<String>): Flux<NotificationEvent> {
         if (logger.isDebugEnabled) {
             logger.debug("Received listen request for channels: ${channels.joinToString(", ")}")
         }
@@ -126,21 +125,23 @@ class R2dbcPostgresEventBus(
             }
     }
 
-    override fun start() {
-        logger.debug("Start listen/notify flow")
+    override fun close() {
+        shutdown()
+    }
+
+    override fun connect() {
+        logger.debug("Initialize listen/notify connection and run notification processors")
 
         initConnection()
         initAsyncNotificationPublishing()
     }
 
-    override fun stop() {
-        logger.debug("Stop listen/notify flow")
+    override fun shutdown() {
+        logger.debug("Stop listen/notify connection and shutdown notification processors")
 
         inboundNotificationsProcessing?.dispose()
         outboundSink.tryEmitComplete()
     }
-
-    override fun isRunning(): Boolean = inboundNotificationsProcessing?.let { !it.isDisposed } ?: false
 
     private fun initConnection() {
         inboundNotificationsProcessing =
@@ -287,7 +288,7 @@ class R2dbcPostgresEventBus(
         "r2dbc notification event (name=${this.name}, parameter=${this.parameter}, processId=${this.processId})"
 }
 
-data class R2dbcPostgresEventBusConfig(
+data class R2dbcPostgresPubSubConfig(
     /*
     Inbound events processing properties
      */

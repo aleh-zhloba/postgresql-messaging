@@ -1,8 +1,8 @@
 package io.github.azhloba.postgresql.messaging.spring.config
 
-import io.github.azhloba.postgresql.messaging.eventbus.PostgresEventBus
-import io.github.azhloba.postgresql.messaging.eventbus.R2dbcPostgresEventBus
-import io.github.azhloba.postgresql.messaging.eventbus.R2dbcPostgresEventBusConfig
+import io.github.azhloba.postgresql.messaging.pubsub.PostgresPubSub
+import io.github.azhloba.postgresql.messaging.pubsub.R2dbcPostgresPubSub
+import io.github.azhloba.postgresql.messaging.pubsub.R2dbcPostgresPubSubConfig
 import io.github.azhloba.postgresql.messaging.spring.PostgresMessagingTemplate
 import io.github.azhloba.postgresql.messaging.spring.PostgresMethodMessageHandler
 import io.r2dbc.postgresql.PostgresqlConnectionFactory
@@ -35,23 +35,23 @@ class PostgresMessagingAutoConfiguration {
 
     @Bean
     @ConditionalOnMissingBean
-    fun r2dbcPostgresEventBusConfig(): R2dbcPostgresEventBusConfig {
-        return R2dbcPostgresEventBusConfig()
+    fun r2dbcPostgresPubSubConfig(): R2dbcPostgresPubSubConfig {
+        return R2dbcPostgresPubSubConfig()
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun r2dbcPostgresEventBus(
+    fun postgresPubSub(
         connectionFactory: ConnectionFactory,
-        config: R2dbcPostgresEventBusConfig
-    ): PostgresEventBus {
-        return R2dbcPostgresEventBus(connectionFactory.unwrapPostgresConnectionFactory(), config)
+        config: R2dbcPostgresPubSubConfig
+    ): PostgresPubSub {
+        return R2dbcPostgresPubSub(connectionFactory.unwrapPostgresConnectionFactory(), config)
     }
 
     @Bean
     @ConditionalOnMissingBean
-    fun postgresMessagingTemplate(postgresEventBus: PostgresEventBus): PostgresMessagingTemplate {
-        return PostgresMessagingTemplate(postgresEventBus)
+    fun postgresMessagingTemplate(postgresPubSub: PostgresPubSub): PostgresMessagingTemplate {
+        return PostgresMessagingTemplate(postgresPubSub)
     }
 
     @Bean
