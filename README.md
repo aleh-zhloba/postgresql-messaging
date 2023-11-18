@@ -26,11 +26,48 @@ Uses PostgreSQL `LISTEN / NOTIFY` built-in [asynchronous notifications](https://
 The library is available on maven central.
 
 #### Gradle
-`implementation("io.github.aleh-zhloba:postgresql-messaging:0.5.0")`
+```kotlin
+implementation("io.github.aleh-zhloba:postgresql-messaging:0.5.0")
+```
+#### Maven
+```xml
+<dependency>
+    <groupId>io.github.aleh-zhloba</groupId>
+    <artifactId>postgresql-messaging</artifactId>
+    <version>0.5.0</version>
+</dependency>
+```
 
 ### Example of usage
 
-### Spring
+The library comes with the auto-configuration class, so if you have configured JDBC `DataSource` or R2DBC `ConnectionFactory` no additional steps required.
+
+Listen notification messages with handler method:
+```kotlin
+@PostgresMessageListener(value = ["channel1", "channel2"], skipLocal = true)
+fun handleNotification(notification: YourNotificationClass) {
+  // ...
+}
+```
+
+Sending notification messages using `PostgresMessagingTemplate`:
+```kotlin
+messagingTemplate.convertAndSend("channel1", YourNotificationClass())
+```
+
+Reactive API:
+```kotlin
+val pubSub: PostgresPubSub = R2dbcPostgresPubSub(connectionFactory)
+
+pubSub.subscribe("channel1", "channel2")
+  .map { notification ->
+    // ...
+  }
+  .subscribe()
+
+pubSub.publish("channel1", "payload")
+  .subscribe()
+```
 
 ## License
 **postgresql-messaging** is released under version 2.0 of the [Apache License](https://www.apache.org/licenses/LICENSE-2.0).
