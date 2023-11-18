@@ -219,22 +219,21 @@ class R2dbcPostgresPubSub(
         }
     }
 
-    private fun listenChannels(channels: Set<String>): Mono<Void> =
-        { connectionRef.get() }.toMono()
-            .flatMap { connection ->
-                channels.toFlux()
-                    .concatMap { channel ->
-                        connection.createStatement("LISTEN $channel").execute()
-                    }
-                    .then()
-            }
-            .doOnError { e ->
-                logger.error(
-                    "Error during channel listen queries execution for channels: " +
-                        channels.joinToString(", "),
-                    e
-                )
-            }
+    private fun listenChannels(channels: Set<String>): Mono<Void> = { connectionRef.get() }.toMono()
+        .flatMap { connection ->
+            channels.toFlux()
+                .concatMap { channel ->
+                    connection.createStatement("LISTEN $channel").execute()
+                }
+                .then()
+        }
+        .doOnError { e ->
+            logger.error(
+                "Error during channel listen queries execution for channels: " +
+                    channels.joinToString(", "),
+                e
+            )
+        }
 
     private fun notifyChannels(requests: Collection<NotificationRequest>): Mono<Void> =
         getConnection().flatMap { connection ->
@@ -264,9 +263,8 @@ class R2dbcPostgresPubSub(
         }
             .doOnError { e -> logger.error("${requests.size} notification has not been sent", e) }
 
-    private fun getConnection(): Mono<PostgresqlConnection> =
-        { connectionRef.get() }.toMono()
-            .switchIfEmpty(NoActiveConnectionException().toMono())
+    private fun getConnection(): Mono<PostgresqlConnection> = { connectionRef.get() }.toMono()
+        .switchIfEmpty(NoActiveConnectionException().toMono())
 
     // remove this reflection hack as soon as R2DBC connection interface explicitly provides process id
     private fun extractProcessId(connection: PostgresqlConnection): Int {
