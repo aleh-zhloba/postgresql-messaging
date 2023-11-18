@@ -16,7 +16,7 @@ plugins {
 }
 
 group = "io.github.aleh-zhloba"
-version = "0.5.0-SNAPSHOT"
+version = "0.5.0"
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17
@@ -88,9 +88,12 @@ tasks.check {
 
 publishing {
     repositories {
+        val deployUrl = if (version.toString().endsWith("-SNAPSHOT")) uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+        else uri("https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/")
+
         maven {
             name = "deploy"
-            url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
+            url = deployUrl
             credentials {
                 username = "OSSRH_USERNAME".env()
                 password = "OSSRH_PASSWORD".env()
@@ -103,7 +106,7 @@ publishing {
             pom {
                 from(components["java"])
                 name = "messaging-postgresql"
-                description = "Convenient event bus for PostgreSQL-backed JVM applications"
+                description = "Lightweight PubSub layer for PostgreSQL-backed JVM applications"
                 url = "https://github.com/aleh-zhloba/postgresql-messaging"
                 licenses {
                     license {
