@@ -1,8 +1,9 @@
 # postgresql-messaging
+![Maven Central](https://img.shields.io/maven-central/v/io.github.aleh-zhloba/postgresql-messaging?versionSuffix=0.5.0)
 [![Kotlin](https://img.shields.io/badge/kotlin-1.9.20-blue.svg?logo=kotlin)](http://kotlinlang.org)
 [![Apache License V.2](https://img.shields.io/badge/license-Apache%20V.2-blue.svg)](https://github.com/oshai/kotlin-logging/blob/master/LICENSE)
 
-Lightweight Publish-Subscribe (PubSub) layer for PostgreSQL-backed distributed JVM applications.
+Lightweight Publish-Subscribe (pub/sub) layer for PostgreSQL-backed distributed JVM applications.
 Cheap inter-process communication without having to bring additional infrastructure.
 
 Uses PostgreSQL `LISTEN / NOTIFY` built-in [asynchronous notifications](https://www.postgresql.org/docs/current/libpq-notify.html).
